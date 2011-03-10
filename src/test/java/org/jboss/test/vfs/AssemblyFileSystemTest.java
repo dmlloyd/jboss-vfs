@@ -2,7 +2,6 @@ package org.jboss.test.vfs;
 
 import java.io.Closeable;
 import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
@@ -16,7 +15,7 @@ import org.junit.Test;
 public class AssemblyFileSystemTest extends AbstractVFSTest {
 
    public AssemblyFileSystemTest(String name) {
-      super(name);
+      super();
    }
 
    @Test

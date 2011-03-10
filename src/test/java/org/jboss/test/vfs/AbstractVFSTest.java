@@ -19,9 +19,10 @@
 * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
 * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 */
+
 package org.jboss.test.vfs;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
@@ -33,7 +34,7 @@ import java.util.List;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import junit.framework.AssertionFailedError;
-import org.jboss.test.BaseTestCase;
+import org.jboss.logging.Logger;
 import org.jboss.vfs.TempFileProvider;
 import org.jboss.vfs.VFS;
 import org.jboss.vfs.VFSUtils;
@@ -46,87 +47,72 @@ import org.junit.internal.ArrayComparisonFailure;
  * @author <a href="adrian@jboss.com">Adrian Brock</a>
  * @version $Revision: 1.1 $
  */
-public abstract class AbstractVFSTest extends BaseTestCase
-{
-   protected TempFileProvider provider;
+public abstract class AbstractVFSTest {
 
-   public AbstractVFSTest(String name)
-   {
-      super(name);
-   }
+    protected static final Logger log = Logger.getLogger("org.jboss.test.vfs");
 
-   protected void setUp() throws Exception
-   {
-      super.setUp();
+    protected TempFileProvider provider;
 
-      provider = TempFileProvider.create("test", new ScheduledThreadPoolExecutor(2));
-   }
+    public AbstractVFSTest() {
+    }
 
-   protected void tearDown() throws Exception
-   {
-      provider.close();
-   }
+    protected void setUp() throws Exception {
+        provider = TempFileProvider.create("test", new ScheduledThreadPoolExecutor(2));
+    }
 
-   public URL getResource(String name)
-   {
-      URL url = super.getResource(name);
-      assertNotNull("Resource not found: " + name, url);
-      return url;
-   }
-   
-   public VirtualFile getVirtualFile(String name)
-   {
-      VirtualFile virtualFile = VFS.getChild(getResource(name).getPath()); 
-      assertTrue("VirtualFile does not exist: " + name, virtualFile.exists());
-      return virtualFile;
-   }
+    protected void tearDown() throws Exception {
+        provider.close();
+    }
 
-   public List<Closeable> recursiveMount(VirtualFile file) throws IOException
-   {
-      ArrayList<Closeable> mounts = new ArrayList<Closeable>();
+    public URL getResource(String name) {
+        URL url = getClass().getClassLoader().getResource(name);
+        assertNotNull("Resource not found: " + name, url);
+        return url;
+    }
 
-      if (!file.isDirectory() && file.getName().matches("^.*\\.([EeWwJj][Aa][Rr]|[Zz][Ii][Pp])$"))
-         mounts.add(VFS.mountZip(file, file, provider));
+    public VirtualFile getVirtualFile(String name) {
+        VirtualFile virtualFile = VFS.getChild(getResource(name).getPath());
+        assertTrue("VirtualFile does not exist: " + name, virtualFile.exists());
+        return virtualFile;
+    }
 
-      if (file.isDirectory())
-         for (VirtualFile child : file.getChildren())
+    public List<Closeable> recursiveMount(VirtualFile file) throws IOException {
+        ArrayList<Closeable> mounts = new ArrayList<Closeable>();
+
+        if (!file.isDirectory() && file.getName().matches("^.*\\.([EeWwJj][Aa][Rr]|[Zz][Ii][Pp])$"))
+            mounts.add(VFS.mountZip(file, file, provider));
+
+        if (file.isDirectory()) for (VirtualFile child : file.getChildren())
             mounts.addAll(recursiveMount(child));
 
-      return mounts;
-   }
+        return mounts;
+    }
 
-   protected <T> void checkThrowableTemp(Class<T> expected, Throwable throwable)
-   {
-      if (expected == null)
-         fail("Must provide an expected class");
-      if (throwable == null)
-         fail("Must provide a throwable for comparison");
-      if (throwable instanceof AssertionFailedError || throwable instanceof AssertionError)
-         throw (Error) throwable;
-      // TODO move to AbstractTestCase if (expected.equals(throwable.getClass()) == false)
-      if (expected.isAssignableFrom(throwable.getClass()) == false)
-      {
-         getLog().error("Unexpected throwable", throwable);
-         fail("Unexpected throwable: " + throwable);
-      }
-      else
-      {
-         getLog().debug("Got expected " + expected.getName() + "(" + throwable + ")");
-      }
-   }
-   
-   protected void assertContentEqual(VirtualFile expected, VirtualFile actual) throws ArrayComparisonFailure, IOException {
-      assertArrayEquals("Expected content must mach actual conent", getContent(expected), getContent(actual));
-   }
+    protected <T> void checkThrowableTemp(Class<T> expected, Throwable throwable) {
+        if (expected == null) fail("Must provide an expected class");
+        if (throwable == null) fail("Must provide a throwable for comparison");
+        if (throwable instanceof AssertionFailedError || throwable instanceof AssertionError) throw (Error) throwable;
+        // TODO move to AbstractTestCase if (expected.equals(throwable.getClass()) == false)
+        if (expected.isAssignableFrom(throwable.getClass()) == false) {
+            log.error("Unexpected throwable", throwable);
+            fail("Unexpected throwable: " + throwable);
+        } else {
+            log.debug("Got expected " + expected.getName() + "(" + throwable + ")");
+        }
+    }
 
-   protected byte[] getContent(VirtualFile virtualFile) throws IOException {
-      InputStream is = virtualFile.openStream();
-      return getContent(is);
-   }
+    protected void assertContentEqual(VirtualFile expected, VirtualFile actual) throws ArrayComparisonFailure, IOException {
+        assertArrayEquals("Expected content must mach actual content", getContent(expected), getContent(actual));
+    }
 
-   protected byte[] getContent(InputStream is) throws IOException {
-      ByteArrayOutputStream bos = new ByteArrayOutputStream();
-      VFSUtils.copyStreamAndClose(is, bos);
-      return bos.toByteArray();
-   }
+    protected byte[] getContent(VirtualFile virtualFile) throws IOException {
+        InputStream is = virtualFile.openStream();
+        return getContent(is);
+    }
+
+    protected byte[] getContent(InputStream is) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        VFSUtils.copyStreamAndClose(is, bos);
+        return bos.toByteArray();
+    }
 }

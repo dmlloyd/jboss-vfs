@@ -24,9 +24,7 @@ package org.jboss.test.vfs;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.Executors;
 
 import junit.framework.Test;
@@ -46,7 +44,7 @@ public class URLConnectionUnitTestCase extends AbstractVFSTest
 {
    public URLConnectionUnitTestCase(String name)
    {
-      super(name);
+      super();
    }
 
    public static Test suite()

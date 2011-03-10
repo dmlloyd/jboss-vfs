@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import java.util.zip.ZipException;
 import org.jboss.vfs.TempDir;
 import org.jboss.vfs.VFSUtils;
 import org.jboss.vfs.VirtualFile;

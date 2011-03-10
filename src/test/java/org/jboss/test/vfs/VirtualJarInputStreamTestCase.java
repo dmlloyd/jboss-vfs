@@ -56,7 +56,7 @@ public class VirtualJarInputStreamTestCase extends AbstractVFSTest {
    private VirtualFile testdir;
    
    public VirtualJarInputStreamTestCase(String name) {
-      super(name);
+      super();
    }
 
    @Before

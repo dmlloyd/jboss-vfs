@@ -92,7 +92,7 @@ public final class RealFileSystem implements FileSystem {
      * {@inheritDoc}
      */
     public File getFile(VirtualFile mountPoint, VirtualFile target) {
-        final String relativePath = target.getPathNameRelativeTo(target);
+        final String relativePath = target.getPathNameRelativeTo(mountPoint);
         final File file;
         final char separatorChar = File.separatorChar;
         if (mountPoint.equals(target)) {

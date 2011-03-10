@@ -63,7 +63,7 @@ public class FileVFSUnitTestCase extends AbstractVFSTest
 {
    public FileVFSUnitTestCase(String name)
    {
-      super(name);
+      super();
    }
 
    public void setUp() throws Exception
@@ -1079,8 +1079,11 @@ public class FileVFSUnitTestCase extends AbstractVFSTest
          try
          {
             InputStream is = jar.openStream();
-            
-            assertTrue(is instanceof JarInputStream);
+            try {
+                assertTrue(is instanceof JarInputStream);
+            } finally {
+                VFSUtils.safeClose(is);
+            }
          }
          finally
          {

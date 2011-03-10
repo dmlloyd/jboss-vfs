@@ -36,7 +36,7 @@ import java.io.File;
 public class MountHandleTestCase extends AbstractVFSTest {
 
    public MountHandleTestCase(final String name) {
-      super(name);
+      super();
    }
 
    public void testZipGetMountSource() throws Exception {

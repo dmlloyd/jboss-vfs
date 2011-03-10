@@ -31,6 +31,8 @@ import org.jboss.vfs.util.automount.MountOwner;
 import org.jboss.vfs.util.automount.SimpleMountOwner;
 import org.jboss.vfs.util.automount.VirtualFileOwner;
 
+import static org.junit.Assert.*;
+
 /**
  * Test for {@link Automounter}
  * 
@@ -41,7 +43,7 @@ public class AutomounterTestCase extends AbstractVFSTest
 
    public AutomounterTestCase(String name)
    {
-      super(name);
+      super();
    }
    
    public void testMountAndCleanup() throws Exception

@@ -42,7 +42,7 @@ public class VFSUtilsTestCase extends AbstractVFSTest
 {
    public VFSUtilsTestCase(String name)
    {
-      super(name);
+      super();
    }
 
    @Test

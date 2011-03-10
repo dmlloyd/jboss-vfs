@@ -22,7 +22,6 @@
 package org.jboss.test.vfs;
 
 import org.jboss.vfs.*;
-import org.jboss.vfs.VirtualJarFileInputStream;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -39,7 +38,7 @@ import static org.junit.Assert.assertArrayEquals;
 public class VirtualJarFileInputStreamTest extends AbstractVFSTest {
 
     public VirtualJarFileInputStreamTest(final String name) {
-        super(name);
+        super();
     }
 
 

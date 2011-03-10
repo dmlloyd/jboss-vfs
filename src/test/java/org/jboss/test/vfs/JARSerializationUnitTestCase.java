@@ -49,7 +49,7 @@ public class JARSerializationUnitTestCase extends AbstractVFSTest
 {
    public JARSerializationUnitTestCase(String name)
    {
-      super(name);
+      super();
    }
 
    public static Test suite()
@@ -76,20 +76,28 @@ public class JARSerializationUnitTestCase extends AbstractVFSTest
          VirtualFile jar1MF = jar1.getChild("META-INF/MANIFEST.MF");
          assertNotNull("jar1!/META-INF/MANIFEST.MF", jar1MF);
          InputStream mfIS = jar1MF.openStream();
-         Manifest mf1 = new Manifest(mfIS);
-         Attributes mainAttrs1 = mf1.getMainAttributes();
-         String title1 = mainAttrs1.getValue(Attributes.Name.SPECIFICATION_TITLE);
-         assertEquals("jar1", title1);
-         mfIS.close();
+         try {
+             Manifest mf1 = new Manifest(mfIS);
+             Attributes mainAttrs1 = mf1.getMainAttributes();
+             String title1 = mainAttrs1.getValue(Attributes.Name.SPECIFICATION_TITLE);
+             assertEquals("jar1", title1);
+             mfIS.close();
+         } finally {
+             VFSUtils.safeClose(mfIS);
+         }
 
          VirtualFile jar2MF = jar2.getChild("META-INF/MANIFEST.MF");
          assertNotNull("jar2!/META-INF/MANIFEST.MF", jar2MF);
          InputStream mfIS2 = jar2MF.openStream();
-         Manifest mf2 = new Manifest(mfIS2);
-         Attributes mainAttrs2 = mf2.getMainAttributes();
-         String title2 = mainAttrs2.getValue(Attributes.Name.SPECIFICATION_TITLE);
-         assertEquals("jar2", title2);
-         mfIS2.close();
+         try {
+             Manifest mf2 = new Manifest(mfIS2);
+             Attributes mainAttrs2 = mf2.getMainAttributes();
+             String title2 = mainAttrs2.getValue(Attributes.Name.SPECIFICATION_TITLE);
+             assertEquals("jar2", title2);
+             mfIS2.close();
+         } finally {
+             VFSUtils.safeClose(mfIS2);
+         }
       }
       finally
       {
@@ -113,21 +121,32 @@ public class JARSerializationUnitTestCase extends AbstractVFSTest
          VirtualFile jar1MF = jar1.getChild("META-INF/MANIFEST.MF");
          assertNotNull("jar1!/META-INF/MANIFEST.MF", jar1MF);
          InputStream mfIS = jar1MF.openStream();
-         Manifest mf1 = new Manifest(mfIS);
-         Attributes mainAttrs1 = mf1.getMainAttributes();
-         String title1 = mainAttrs1.getValue(Attributes.Name.SPECIFICATION_TITLE);
-         assertEquals("jar1", title1);
-         mfIS.close();
+         Manifest mf1;
+         Attributes mainAttrs1;
+         String title1;
+         try {
+             mf1 = new Manifest(mfIS);
+             mainAttrs1 = mf1.getMainAttributes();
+             title1 = mainAttrs1.getValue(Attributes.Name.SPECIFICATION_TITLE);
+             assertEquals("jar1", title1);
+             mfIS.close();
+         } finally {
+             VFSUtils.safeClose(mfIS);
+         }
 
          VirtualFile jar1DS = serializeDeserialize(jar1, VirtualFile.class);
          assertNotNull("jar1 deserialized", jar1DS);
          VirtualFile jar1DSMF = jar1.getChild("META-INF/MANIFEST.MF");
          mfIS = jar1DSMF.openStream();
-         mf1 = new Manifest(mfIS);
-         mainAttrs1 = mf1.getMainAttributes();
-         title1 = mainAttrs1.getValue(Attributes.Name.SPECIFICATION_TITLE);
-         assertEquals("jar1", title1);
-         mfIS.close();
+         try {
+             mf1 = new Manifest(mfIS);
+             mainAttrs1 = mf1.getMainAttributes();
+             title1 = mainAttrs1.getValue(Attributes.Name.SPECIFICATION_TITLE);
+             assertEquals("jar1", title1);
+             mfIS.close();
+         } finally {
+             VFSUtils.safeClose(mfIS);
+         }
       }
       finally
       {
@@ -149,22 +168,33 @@ public class JARSerializationUnitTestCase extends AbstractVFSTest
          VirtualFile jar1MF = jar1.getChild("META-INF/MANIFEST.MF");
          assertNotNull("jar1-filesonly!/META-INF/MANIFEST.MF", jar1MF);
          InputStream mfIS = jar1MF.openStream();
-         Manifest mf1 = new Manifest(mfIS);
-         Attributes mainAttrs1 = mf1.getMainAttributes();
-         String title1 = mainAttrs1.getValue(Attributes.Name.SPECIFICATION_TITLE);
-         assertEquals("jar1-filesonly", title1);
-         mfIS.close();
+         Manifest mf1;
+         Attributes mainAttrs1;
+         String title1;
+         try {
+             mf1 = new Manifest(mfIS);
+             mainAttrs1 = mf1.getMainAttributes();
+             title1 = mainAttrs1.getValue(Attributes.Name.SPECIFICATION_TITLE);
+             assertEquals("jar1-filesonly", title1);
+             mfIS.close();
+         } finally {
+             VFSUtils.safeClose(mfIS);
+         }
 
          VirtualFile jar1DS = serializeDeserialize(jar1, VirtualFile.class);
          assertNotNull("jar1 deserialized", jar1DS);
          VirtualFile jar1DSMF = jar1DS.getChild("META-INF/MANIFEST.MF");
          assertNotNull("jar1-filesonly!/META-INF/MANIFEST.MF", jar1DSMF);
          mfIS = jar1DSMF.openStream();
-         mf1 = new Manifest(mfIS);
-         mainAttrs1 = mf1.getMainAttributes();
-         title1 = mainAttrs1.getValue(Attributes.Name.SPECIFICATION_TITLE);
-         assertEquals("jar1-filesonly", title1);
-         mfIS.close();
+         try {
+             mf1 = new Manifest(mfIS);
+             mainAttrs1 = mf1.getMainAttributes();
+             title1 = mainAttrs1.getValue(Attributes.Name.SPECIFICATION_TITLE);
+             assertEquals("jar1-filesonly", title1);
+             mfIS.close();
+         } finally {
+             VFSUtils.safeClose(mfIS);
+         }
       }
       finally
       {
