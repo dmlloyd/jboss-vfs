@@ -22,6 +22,7 @@
 
 package org.jboss.vfs.spi;
 
+import java.io.FileNotFoundException;
 import org.jboss.vfs.VirtualFile;
 import org.jboss.logging.Logger;
 
@@ -43,14 +44,10 @@ public final class RealFileSystem implements FileSystem {
 
     private static final Logger log = Logger.getLogger("org.jboss.vfs.real");
 
-    /**
-     * The root real filesystem (singleton instance).
-     */
-   
-
     private static final boolean NEEDS_CONVERSION = File.separatorChar != '/';
 
     private final File realRoot;
+    private final boolean extraCaseCheck;
 
     /**
      * Construct a real filesystem with the given real root.
@@ -58,7 +55,18 @@ public final class RealFileSystem implements FileSystem {
      * @param realRoot the real root
      */
     public RealFileSystem(File realRoot) {
+        this(realRoot, false);
+    }
+
+    /**
+     * Construct a real filesystem with the given real root.
+     *
+     * @param realRoot the real root
+     * @param extraCaseCheck {@code true} to enable extra case-sensitivity checks
+     */
+    public RealFileSystem(final File realRoot, final boolean extraCaseCheck) {
         this.realRoot = realRoot;
+        this.extraCaseCheck = extraCaseCheck;
         log.tracef("Constructed real filesystem at root %s", realRoot);
     }
 
@@ -66,7 +74,11 @@ public final class RealFileSystem implements FileSystem {
      * {@inheritDoc}
      */
     public InputStream openInputStream(VirtualFile mountPoint, VirtualFile target) throws IOException {
-        return new FileInputStream(getFile(mountPoint, target));
+        File file = getFile(mountPoint, target);
+        if (file == null) {
+            throw new FileNotFoundException(target.getPathName());
+        }
+        return new FileInputStream(file);
     }
 
     /**
@@ -80,12 +92,58 @@ public final class RealFileSystem implements FileSystem {
      * {@inheritDoc}
      */
     public File getFile(VirtualFile mountPoint, VirtualFile target) {
+        final String relativePath = target.getPathNameRelativeTo(target);
+        final File file;
+        final char separatorChar = File.separatorChar;
         if (mountPoint.equals(target)) {
             return realRoot;
         } else if (NEEDS_CONVERSION) {
-            return new File(realRoot, target.getPathNameRelativeTo(mountPoint).replace('/', File.separatorChar));
+            file = new File(realRoot, relativePath.replace('/', separatorChar));
         } else {
-            return new File(realRoot, target.getPathNameRelativeTo(mountPoint));
+            file = new File(realRoot, relativePath);
+        }
+        if (extraCaseCheck) try {
+            /*
+             * Check each segment of the canonical path of the target, relative to the root,
+             * to make sure that they are identical to each segment of the virtual target.
+             */
+            final String canonicalRoot = realRoot.getCanonicalPath();
+            final String canonicalTarget = file.getCanonicalPath();
+            if (! canonicalTarget.startsWith(canonicalRoot)) {
+                // the target does not exist under the root, somehow, so we can't check.
+                // in particular, symlinks will screw this up
+                return null;
+            }
+            VirtualFile targetCurrent = target;
+            String fileCurrent = canonicalTarget;
+            String segment;
+            int idx;
+            for (;;) {
+                // if one or both are equal to the mount point, we're done
+                if (fileCurrent.equals(canonicalRoot) || fileCurrent.isEmpty()) {
+                    if (targetCurrent.equals(mountPoint)) {
+                        return file;
+                    } else {
+                        return null;
+                    }
+                } else if (targetCurrent.equals(mountPoint)) {
+                    return null;
+                }
+                idx = fileCurrent.lastIndexOf(separatorChar);
+                segment = idx == -1 ? fileCurrent : fileCurrent.substring(idx + 1);
+                // check for exact case match
+                if (! segment.equals(targetCurrent.getName())) {
+                    // if not matched, the file is not found
+                    return null;
+                }
+                // Move each piece to their parent position
+                targetCurrent = targetCurrent.getParent();
+                fileCurrent = idx == -1 ? "" : fileCurrent.substring(0, idx);
+            }
+        } catch (IOException e) {
+            return null;
+        } else {
+            return file;
         }
     }
 
@@ -93,47 +151,57 @@ public final class RealFileSystem implements FileSystem {
      * {@inheritDoc}
      */
     public boolean delete(VirtualFile mountPoint, VirtualFile target) {
-        return getFile(mountPoint, target).delete();
+        final File file = getFile(mountPoint, target);
+        return file == null ? false : file.delete();
     }
 
     /**
      * {@inheritDoc}
      */
     public long getSize(VirtualFile mountPoint, VirtualFile target) {
-        return getFile(mountPoint, target).length();
+        final File file = getFile(mountPoint, target);
+        return file == null ? 0L : file.length();
     }
 
     /**
      * {@inheritDoc}
      */
     public long getLastModified(VirtualFile mountPoint, VirtualFile target) {
-        return getFile(mountPoint, target).lastModified();
+        final File file = getFile(mountPoint, target);
+        return file == null ? 0L : file.lastModified();
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean exists(VirtualFile mountPoint, VirtualFile target) {
-        return getFile(mountPoint, target).exists();
+        final File file = getFile(mountPoint, target);
+        return file == null ? false : file.exists();
     }
 
     /** {@inheritDoc} */
     public boolean isFile(final VirtualFile mountPoint, final VirtualFile target) {
-        return getFile(mountPoint, target).isFile();
+        final File file = getFile(mountPoint, target);
+        return file == null ? false : file.isFile();
     }
 
     /**
      * {@inheritDoc}
      */
     public boolean isDirectory(VirtualFile mountPoint, VirtualFile target) {
-        return getFile(mountPoint, target).isDirectory();
+        final File file = getFile(mountPoint, target);
+        return file == null ? false : file.isDirectory();
     }
 
     /**
      * {@inheritDoc}
      */
     public List<String> getDirectoryEntries(VirtualFile mountPoint, VirtualFile target) {
-        final String[] names = getFile(mountPoint, target).list();
+        final File file = getFile(mountPoint, target);
+        if (file == null) {
+            return Collections.emptyList();
+        }
+        final String[] names = file.list();
         return names == null ? Collections.<String>emptyList() : Arrays.asList(names);
     }
     

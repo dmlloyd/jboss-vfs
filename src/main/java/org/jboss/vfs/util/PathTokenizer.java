@@ -106,9 +106,8 @@ public class PathTokenizer {
     /**
      * Get the tokens that comprise this path and append them to the list.
      *
+     * @param list the list to update
      * @param path the path
-     *
-     * @return the tokens or null if the path is empty
      *
      * @throws IllegalArgumentException if the path is null
      */

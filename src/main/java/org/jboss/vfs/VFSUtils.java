@@ -21,13 +21,30 @@
 */
 package org.jboss.vfs;
 
-import java.io.*;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -38,7 +55,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.jboss.logging.Logger;
-import org.jboss.util.collection.CollectionsFactory;
 import org.jboss.vfs.spi.MountHandle;
 import org.jboss.vfs.util.PathTokenizer;
 import org.jboss.vfs.util.automount.Automounter;
@@ -151,7 +167,7 @@ public class VFSUtils {
                         Automounter.mount(file, vf);
                         addManifestLocations(vf, paths);
                     } else if (trace)
-                        log.trace(vf.getName() + " from manifiest is already in the classpath " + paths);
+                        log.trace(vf.getName() + " from manifest is already in the classpath " + paths);
                 } else if (trace)
                     log.trace("Unable to find " + path + " from " + parent.getName());
             }
@@ -239,7 +255,7 @@ public class VFSUtils {
      * Decode the path.
      *
      * @param path the path to decode
-     * @param encoding the encodeing
+     * @param encoding the encoding
      *
      * @return decoded path
      */
@@ -280,16 +296,18 @@ public class VFSUtils {
      * @return String[] for the name/value pairs in the query. May be empty but never null.
      */
     public static Map<String, String> parseURLQuery(String query) {
-        Map<String, String> pairsMap = CollectionsFactory.createLazyMap();
         if (query != null) {
+            Map<String, String> pairsMap = new HashMap<String, String>();
             StringTokenizer tokenizer = new StringTokenizer(query, "=&");
             while (tokenizer.hasMoreTokens()) {
                 String name = tokenizer.nextToken();
                 String value = tokenizer.nextToken();
                 pairsMap.put(name, value);
             }
+            return pairsMap;
+        } else {
+            return Collections.emptyMap();
         }
-        return pairsMap;
     }
 
     /**

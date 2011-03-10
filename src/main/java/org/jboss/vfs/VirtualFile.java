@@ -56,13 +56,11 @@ public final class VirtualFile implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private final String name;
-    private final String lcname;
     private final VirtualFile parent;
     private final int hashCode;
 
     VirtualFile(String name, VirtualFile parent) {
         this.name = name;
-        lcname = name.toLowerCase();
         this.parent = parent;
         int result = parent == null ? 1 : parent.hashCode();
         result = 31 * result + name.hashCode();
@@ -76,15 +74,6 @@ public final class VirtualFile implements Serializable {
      */
     public String getName() {
         return name;
-    }
-
-    /**
-     * Get the simple VF name mapped to lowercase (x.java) (used by case-insensitive filesystems like ZIP).
-     *
-     * @return the lowercase simple file name
-     */
-    public String getLowerCaseName() {
-        return lcname;
     }
 
     /**
@@ -114,7 +103,7 @@ public final class VirtualFile implements Serializable {
         if (this.parent == null) {
             throw new IllegalArgumentException("Given parent is not an ancestor of this virtual file");
         }
-        if(this.equals(parent)) {
+        if(equals(parent)) {
            return;
         }
         if (!this.parent.equals(parent)) {
@@ -181,7 +170,7 @@ public final class VirtualFile implements Serializable {
     
     /**
      * Determines whether this virtual file represents a true root of a file system.
-     * On UNIX, there is only one root "/". Howevever, on Windows there are an infinite
+     * On UNIX, there is only one root "/". However, on Windows there are an infinite
      * number of roots that correspond to drives, or UNC paths.
      * 
      * @return {@code true} if this represents a root.
@@ -250,7 +239,7 @@ public final class VirtualFile implements Serializable {
     /**
      * Get a physical file for this virtual file.  Depending on the underlying file system type, this may simply return
      * an already-existing file; it may create a copy of a file; or it may reuse a preexisting copy of the file.
-     * Furthermore, the retured file may or may not have any relationship to other files from the same or any other
+     * Furthermore, the returned file may or may not have any relationship to other files from the same or any other
      * virtual directory.
      *
      * @return the physical file

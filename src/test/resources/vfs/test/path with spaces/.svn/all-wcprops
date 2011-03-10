@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/repos/jbossas/!svn/ver/99549/projects/vfs/trunk/src/test/resources/vfs/test/path%20with%20spaces
+END
+spaces.ear
+K 25
+svn:wc:ra_dav:version-url
+V 108
+/repos/jbossas/!svn/ver/99549/projects/vfs/trunk/src/test/resources/vfs/test/path%20with%20spaces/spaces.ear
+END
+tst%20nospace.jar
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/repos/jbossas/!svn/ver/99549/projects/vfs/trunk/src/test/resources/vfs/test/path%20with%20spaces/tst%2520nospace.jar
+END
+tst.jar
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/repos/jbossas/!svn/ver/99549/projects/vfs/trunk/src/test/resources/vfs/test/path%20with%20spaces/tst.jar
+END
